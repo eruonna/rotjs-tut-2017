@@ -11,8 +11,9 @@ Game.Command.prototype.run = function (entity) {
 }
 
 Game.Command.move = function (entity, data) {
-  entity.x += data.x;
-  entity.y += data.y;
+  if (entity.moveTo) {
+    entity.moveTo(entity._x + data.x, entity._y + data.y);
+  }
 }
 
 Game.Keys = {}

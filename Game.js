@@ -18,7 +18,19 @@ Game.init = function() {
 
   Game._display = new Game.Display(Game._div);
 
-  Game._player = { x: 80, y: 25 };
+  Game._player = new Game.Entity({
+    x: 80,
+    y: 26,
+    glyph: Game.Glyph.Player
+  }, ['Position', 'Renderable']);
+
+  var npc = new Game.Entity({
+    x: 70,
+    y: 26,
+    glyph: Game.Glyph.NPC
+  }, ['Position', 'Renderable']);
+
+  Game._entities = [Game._player, npc];
 
   Game.run();
 };
@@ -30,7 +42,11 @@ Game.run = function() {
 
 Game.render = function() {
   Game._display.clear();
-  Game._display.draw(Game._player.x, Game._player.y, '@');
+  for (var i = 0; i < Game._entities.length; i++) {
+    if (Game._entities[i].render) {
+      Game._entities[i].render(Game._display);
+    }
+  }
 }
 
 Game.update = function() {
