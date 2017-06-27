@@ -37,8 +37,12 @@ Game.Components.Position = {
     obj._y = properties.y || 0;
   },
   moveTo: function (x, y) {
+    if (Game._map.getTile(x,y).isBlocked()) {
+      return false;
+    }
     this._x = x;
     this._y = y;
+    return true;
   }
 }
 

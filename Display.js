@@ -1,11 +1,12 @@
 
-Game.Display = function (div) {
+Game.Display = function (div, width, height) {
   this._div = div;
 
   this._displayOpts = {
-    width: 160,
-    height: 50,
-    layout: "hex"
+    width: width,
+    height: height,
+    layout: "hex",
+    spacing: 0.9
   };
 
   this._console = new ROT.Display(this._displayOpts);

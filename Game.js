@@ -1,6 +1,9 @@
 
 Game = {}
 
+Game.width = 160
+Game.height = 50
+
 Game.init = function() {
   Game._div = document.getElementById("game");
 
@@ -16,17 +19,19 @@ Game.init = function() {
 
   Game._div.innerHTML = "";
 
-  Game._display = new Game.Display(Game._div);
+  Game._display = new Game.Display(Game._div, Game.width, Game.height);
+
+  Game._map = new Game.Map(Game.width, Game.height);
 
   Game._player = new Game.Entity({
-    x: 80,
-    y: 26,
+    x: Game.width / 2,
+    y: Game.height / 2 + 1,
     glyph: Game.Glyph.Player
   }, ['Position', 'Renderable']);
 
   var npc = new Game.Entity({
-    x: 70,
-    y: 26,
+    x: Game.width / 2 - 10,
+    y: Game.height / 2 + 1,
     glyph: Game.Glyph.NPC
   }, ['Position', 'Renderable']);
 
@@ -42,6 +47,7 @@ Game.run = function() {
 
 Game.render = function() {
   Game._display.clear();
+  Game._map.render(Game._display);
   for (var i = 0; i < Game._entities.length; i++) {
     if (Game._entities[i].render) {
       Game._entities[i].render(Game._display);
