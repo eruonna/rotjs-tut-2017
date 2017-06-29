@@ -4,6 +4,7 @@
     <title>Complete Roguelike Tutorial, rot.js</title>
     <link href="https://fonts.googleapis.com/css?family=Overpass+Mono"
           rel="stylesheet"></link>
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
     <script src="rot.min.js"></script>
     <script src="Game.js"></script>
     <script src="Commands.js"></script>
@@ -12,6 +13,17 @@
     <script src="Glyph.js"></script>
     <script src="Map.js"></script>
     <script src="Util.js"></script>
+    <script>
+      WebFont.load({
+        google: {
+          families: ['Overpass Mono']
+        },
+        active: function () {
+          Game.fontsLoaded = true;
+          Game.run();
+        }
+      });
+    </script>
   </head>
   <body onload="Game.init()">
     <div id="game">Javascript must be enabled</div>

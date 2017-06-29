@@ -4,6 +4,9 @@ Game = {}
 Game.width = 160
 Game.height = 50
 
+Game.initialized = false
+Game.fontsLoaded = false
+
 Game.init = function() {
   Game._div = document.getElementById("game");
 
@@ -37,10 +40,13 @@ Game.init = function() {
 
   Game._entities = [Game._player, npc];
 
+  Game.initialized = true;
   Game.run();
 };
 
 Game.run = function() {
+  if (!Game.fontsLoaded) { return; }
+  if (!Game.initialized) { Game.init(); }
   window.addEventListener('keydown', Game.handleEvent);
   Game.render();
 };
