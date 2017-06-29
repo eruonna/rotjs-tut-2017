@@ -40,8 +40,10 @@ Game.Map = function (width, height) {
     tiles[x+','+y] = Game.Tile.Floor;
   });
 
-  this.setTile(60,22,Game.Tile.Wall);
-  this.setTile(100,22,Game.Tile.Wall);
+  var map = this;
+  Game.Util.ring({x: 72, y: 32}, 10, function (pt) {
+    map.setTile(pt.x, pt.y, Game.Tile.Wall);
+  });
 }
 
 Game.Map.prototype.foreachTile = function (cb) {

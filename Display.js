@@ -5,8 +5,9 @@ Game.Display = function (div, width, height) {
   this._displayOpts = {
     width: width,
     height: height,
+    fontFamily: "'Overpass Mono', monospace",
     layout: "hex",
-    spacing: 0.9
+    spacing: 0.75
   };
 
   this._console = new ROT.Display(this._displayOpts);

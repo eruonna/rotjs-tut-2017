@@ -14,5 +14,5 @@ Game.Glyph.Player = new Game.Glyph('@', 'white');
 Game.Glyph.NPC = new Game.Glyph('@', 'yellow');
 Game.Glyph.LitFloor = new Game.Glyph('\u2e31', 'white');
 Game.Glyph.DarkFloor = new Game.Glyph('\u2e31', 'grey');
-Game.Glyph.LitWall = new Game.Glyph(' ', '', 'white');
-Game.Glyph.DarkWall = new Game.Glyph(' ', '', 'grey');
+Game.Glyph.LitWall = new Game.Glyph('\u2b22', 'white', 'black');
+Game.Glyph.DarkWall = new Game.Glyph('\u2b22', 'grey', 'black');
