@@ -7,7 +7,7 @@ Game.Display = function (div, width, height) {
     height: height,
     fontFamily: "FreeMono, monospace",
     layout: "hex",
-    spacing: 0.75
+    spacing: 0.56
   };
 
   this._console = new ROT.Display(this._displayOpts);
