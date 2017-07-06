@@ -42,6 +42,18 @@ Game.Tile.UpStair = new Game.Tile({
   blocked: false,
   blockSight: false
 })
+Game.Tile.DownStair = new Game.Tile({
+  litGlyph: Game.Glyph.LitDownStair,
+  darkGlyph: Game.Glyph.DarkDownStair,
+  blocked: false,
+  blockSight: false
+})
+Game.Tile.Bridge = new Game.Tile({
+  litGlyph: Game.Glyph.LitBridge,
+  darkGlyph: Game.Glyph.DarkBridge,
+  blocked: false,
+  blockSight: false
+});
 
 Game.Map = function (width, height) {
   this._width = width;

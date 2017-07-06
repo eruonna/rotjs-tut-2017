@@ -13,6 +13,10 @@ Game.Generator = function (width, height) {
 
 Game.Generator.prototype.compute = function (place) {
   this.generate();
+  this.findComponents();
+  console.log(this._components[0].length);
+  console.log(this._components[1].length);
+  this.makeBridge();
   this.pickEntrance();
 
   for (var y = 0; y < this._height; y++) {
@@ -25,15 +29,7 @@ Game.Generator.prototype.compute = function (place) {
 }
 
 Game.Generator.prototype.pickEntrance = function () {
-  var candidates = [];
-  for (var y = 0; y < this._height; y++) {
-    for (var x = y % 2; x < this._width; x+=2) {
-      if (this._map[x+','+y] === Game.Tile.Floor) {
-        candidates.push({x: x, y: y});
-      }
-    }
-  }
-  this._entrance = candidates.random();
+  this._entrance = this._components[0].random();
 }
 
 Game.Generator.prototype.pickRoom = function (rooms) {
@@ -160,6 +156,60 @@ Game.Generator.prototype.tryRoom = function (room, start, first) {
   }
 
   return false;
+}
+
+Game.Generator.prototype.findComponents = function () {
+  this._components = [];
+
+  var componentMap = {};
+  var component = [];
+  var map = this._map;
+
+  var passes = function (pt) {
+    var idx = pt.x+','+pt.y;
+    return (idx in map) && !map[idx].isBlocked();
+  }
+  var visit = function (pt) {
+    componentMap[pt.x+','+pt.y] = 1;
+    component.push(pt);
+  }
+
+  for (var y = 0; y < this._height; y++) {
+    for (var x = y % 2; x < this._width; x+=2) {
+      var idx = x+','+y;
+      if (!(idx in componentMap) && !this._map[idx].isBlocked()) {
+        Game.Util.floodFill({x: x, y: y}, passes, visit);
+        this._components.push(component);
+        component = [];
+      }
+    }
+  }
+
+  // Sort by decreasing length
+  this._components.sort(function (a, b) { return b.length - a.length; });
+}
+
+Game.Generator.prototype.makeBridge = function () {
+  if (this._components.length > 1 &&
+      this._components[1].length < 0.25 * this._components[0].length) return;
+
+  var start = this._components[0].random(), end = this._components[1].random();
+  var map = this._map;
+
+  var passable = function (x, y) {
+    return map[x+','+y] !== Game.Tile.Wall;
+  }
+  var place = function (x, y) {
+    var idx = x+','+y;
+    if (map[idx] === Game.Tile.Water) {
+      map[idx] = Game.Tile.Bridge;
+    }
+  }
+
+  var path = new ROT.Path.AStar(start.x, start.y, passable, { topology: 6 });
+  path.compute(end.x, end.y, place);
+
+  console.log('bridge built');
 }
 
 Game.Generator.Room = function (type, props) {

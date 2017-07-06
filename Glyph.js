@@ -20,3 +20,7 @@ Game.Glyph.LitWater = new Game.Glyph('~', 'white', '#08f');
 Game.Glyph.DarkWater = new Game.Glyph('~', 'grey', '#024');
 Game.Glyph.LitUpStair = new Game.Glyph('<', 'white');
 Game.Glyph.DarkUpStair = new Game.Glyph('<', 'grey');
+Game.Glyph.LitDownStair = new Game.Glyph('>', 'white');
+Game.Glyph.DarkDownStair = new Game.Glyph('>', 'grey');
+Game.Glyph.LitBridge = new Game.Glyph('=', 'grey', '#a04000');
+Game.Glyph.DarkBridge = new Game.Glyph('=', 'grey', '#6e2c00');

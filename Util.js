@@ -117,3 +117,24 @@ Game.Util.rotateLeft = function (pt) {
 Game.Util.rotateRight = function (pt) {
   return Game.Util._CubeCoords.fromDouble(pt).rotateRight().toDouble();
 }
+
+Game.Util.floodFill = function (pt, passes, visit) {
+  if (!passes(pt)) return;
+  visit(pt);
+  var visited = {};
+  visited[pt.x+','+pt.y] = true;
+  var fringe = [pt];
+
+  while (fringe.length > 0) {
+    pt = fringe.pop();
+    var neighbors = Game.Util.neighbors(pt);
+    for (var i = 0; i < neighbors.length; i++) {
+      var n = neighbors[i];
+      if (!visited[n.x+','+n.y] && passes(n)) {
+        visit(n);
+        visited[n.x+','+n.y] = true;
+        fringe.push(n);
+      }
+    }
+  }
+}
