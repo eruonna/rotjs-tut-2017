@@ -27,8 +27,8 @@ Game.init = function() {
   Game._map = new Game.Map(Game.width, Game.height);
 
   Game._player = new Game.Entity({
-    x: Game.width / 2,
-    y: Game.height / 2 + 1,
+    x: Game._map._upStair.x,
+    y: Game._map._upStair.y,
     glyph: Game.Glyph.Player
   }, ['Position', 'Renderable']);
 
@@ -53,10 +53,11 @@ Game.run = function() {
 
 Game.render = function() {
   Game._display.clear();
-  Game._map.render(Game._display);
+  Game._map.render(Game._display, Game._player);
   for (var i = 0; i < Game._entities.length; i++) {
-    if (Game._entities[i].render) {
-      Game._entities[i].render(Game._display);
+    var e = Game._entities[i];
+    if (e.render && Game._map.getTile(e._x, e._y).lit) {
+      e.render(Game._display);
     }
   }
 }

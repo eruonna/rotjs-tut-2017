@@ -35,6 +35,22 @@ Game.Util._CubeCoords.prototype.add = function (other) {
                                    this.z + other.z);
 }
 
+Game.Util._CubeCoords.prototype.rotateLeft = function () {
+  return new Game.Util._CubeCoords(this.x + this.z,
+                                   this.x + this.y,
+                                   this.y + this.z);
+}
+
+Game.Util._CubeCoords.prototype.rotateRight = function () {
+  return new Game.Util._CubeCoords(this.x + this.y,
+                                   this.y + this.z,
+                                   this.x + this.z);
+}
+
+Game.Util._CubeCoords.prototype.neighbors = function() {
+  return Game.Util._CubeCoords.dirs.map(this.add.bind(this));
+}
+
 Game.Util._CubeCoords.ring = function (center, radius, cb) {
   var dirs = Game.Util._CubeCoords.dirs;
 
@@ -68,8 +84,36 @@ Game.Util._CubeCoords.prototype.round = function () {
   return new Game.Util._CubeCoords(rx, ry, rz);
 }
 
+Game.Util._CubeCoords.prototype.dist = function (other) {
+  return (Math.abs(this.x - other.x)
+        + Math.abs(this.y - other.y)
+        + Math.abs(this.z - other.z)) / 2;
+}
+
 Game.Util.ring = function (center, radius, cb) {
   Game.Util._CubeCoords.ring(Game.Util._CubeCoords.fromDouble(center),
                              radius,
                              function (cube) { cb(cube.toDouble()); });
+}
+
+Game.Util.hexDist = function (pt1, pt2) {
+  return Game.Util._CubeCoords.fromDouble(pt1)
+             .dist(Game.Util._CubeCoords.fromDouble(pt2));
+}
+
+Game.Util.neighbors = function (pt) {
+  return Game.Util._CubeCoords.fromDouble(pt).neighbors()
+             .map(function (coords) { return coords.toDouble(); });
+}
+
+Game.Util.roundHex = function (pt) {
+  return Game.Util._CubeCoords.fromDouble(pt).round().toDouble();
+}
+
+Game.Util.rotateLeft = function (pt) {
+  return Game.Util._CubeCoords.fromDouble(pt).rotateLeft().toDouble();
+}
+
+Game.Util.rotateRight = function (pt) {
+  return Game.Util._CubeCoords.fromDouble(pt).rotateRight().toDouble();
 }

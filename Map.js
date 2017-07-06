@@ -30,6 +30,18 @@ Game.Tile.Wall = new Game.Tile({
   blocked: true,
   blockSight: true
 })
+Game.Tile.Water = new Game.Tile({
+  litGlyph: Game.Glyph.LitWater,
+  darkGlyph: Game.Glyph.DarkWater,
+  blocked: true,
+  blockSight: false
+})
+Game.Tile.UpStair = new Game.Tile({
+  litGlyph: Game.Glyph.LitUpStair,
+  darkGlyph: Game.Glyph.DarkUpStair,
+  blocked: false,
+  blockSight: false
+})
 
 Game.Map = function (width, height) {
   this._width = width;
@@ -37,13 +49,15 @@ Game.Map = function (width, height) {
   this._tiles = {};
   var tiles = this._tiles;
   this.foreachTile(function(t, x, y) {
-    tiles[x+','+y] = Game.Tile.Floor;
+    tiles[x+','+y] = { tile: Game.Tile.Floor,
+                       seen: false };
   });
 
-  var map = this;
-  Game.Util.ring({x: 72, y: 32}, 10, function (pt) {
-    map.setTile(pt.x, pt.y, Game.Tile.Wall);
+  var gen = new Game.Generator(width, height);
+  gen.compute(function (x, y, t) {
+    tiles[x+','+y].tile = t;
   });
+  this._upStair = gen._entrance;
 }
 
 Game.Map.prototype.foreachTile = function (cb) {
@@ -54,14 +68,37 @@ Game.Map.prototype.foreachTile = function (cb) {
   }
 }
 
-Game.Map.prototype.render = function (ctx) {
-  this.foreachTile(function(tile, x, y) {
-    tile._darkGlyph.draw(ctx, x, y);
+Game.Map.prototype.render = function (ctx, player) {
+  this.foreachTile(function(t, x, y) {
+    t.lit = false;
+    if (t.seen) {
+      t.tile._darkGlyph.draw(ctx, x, y);
+    }
+  });
+
+  var tiles = this._tiles;
+  var lightPasses = function (x, y) {
+    var idx = x+','+y;
+    return (idx in tiles) && !tiles[idx].tile.blockSight();
+  }
+  var fov = new ROT.FOV.PreciseShadowcasting(lightPasses, {topology: 6});
+
+  fov.compute(player._x, player._y, 160, function(x, y) {
+    var idx = x+','+y;
+    if (idx in tiles) {
+      tiles[idx].tile._litGlyph.draw(ctx, x, y);
+      tiles[idx].lit = true;
+      tiles[idx].seen = true;
+    }
   });
 }
 
 Game.Map.prototype.setTile = function (x, y, tile) {
-  this._tiles[x+','+y] = tile;
+  this._tiles[x+','+y].tile = tile;
+}
+
+Game.Map.NullTile = {
+  tile: Game.Tile.Null,
 }
 
 Game.Map.prototype.getTile = function (x, y) {
@@ -69,6 +106,6 @@ Game.Map.prototype.getTile = function (x, y) {
   if (ix in this._tiles) {
     return this._tiles[ix];
   } else {
-    return Game.Tile.Null;
+    return Game.Map.NullTile;
   }
 }
