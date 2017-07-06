@@ -138,3 +138,26 @@ Game.Util.floodFill = function (pt, passes, visit) {
     }
   }
 }
+
+Game.Util.pickRandomProps = function (choices) {
+  var weighted = {};
+  for (var i = 0; i < choices.length; i++) {
+    if (choices[i].weight) {
+      weighted[i] = choices[i].weight;
+    }
+  }
+  var choice = choices[ROT.RNG.getWeightedValue(weighted)], props = {};
+  for (var idx in choice.props) {
+    props[idx] = choice.props[idx].random();
+  }
+
+  var ret = {};
+  for (idx in choice) {
+    if (idx != 'props') {
+      ret[idx] = choice[idx];
+    }
+  }
+  ret.props = props;
+
+  return ret;
+}

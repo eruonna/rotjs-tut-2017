@@ -53,7 +53,25 @@ Game.Tile.Bridge = new Game.Tile({
   darkGlyph: Game.Glyph.DarkBridge,
   blocked: false,
   blockSight: false
-});
+})
+Game.Tile.Mud = new Game.Tile({
+  litGlyph: Game.Glyph.LitMud,
+  darkGlyph: Game.Glyph.DarkMud,
+  blocked: false,
+  blockSight: false
+})
+Game.Tile.SwampGrass = new Game.Tile({
+  litGlyph: Game.Glyph.LitSwampGrass,
+  darkGlyph: Game.Glyph.DarkSwampGrass,
+  blocked: false,
+  blockSight: false
+})
+Game.Tile.SwampWater = new Game.Tile({
+  litGlyph: Game.Glyph.LitSwampWater,
+  darkGlyph: Game.Glyph.DarkSwampWater,
+  blocked: true,
+  blockSight: false
+})
 
 Game.Map = function (width, height) {
   this._width = width;

@@ -14,8 +14,6 @@ Game.Generator = function (width, height) {
 Game.Generator.prototype.compute = function (place) {
   this.generate();
   this.findComponents();
-  console.log(this._components[0].length);
-  console.log(this._components[1].length);
   this.makeBridge();
   this.pickEntrance();
 
@@ -33,17 +31,13 @@ Game.Generator.prototype.pickEntrance = function () {
 }
 
 Game.Generator.prototype.pickRoom = function (rooms) {
-  var choices = {};
-  for (var i = 0; i < rooms.length; i++) {
-    if (rooms[i].weight) {
-      choices[i] = rooms[i].weight;
-    }
-  }
-  var room = rooms[ROT.RNG.getWeightedValue(choices)], props = {};
-  for (var idx in room.props) {
-    props[idx] = room.props[idx].random();
-  }
-  return new Game.Generator.Room(room.type, props);
+  var room = Game.Util.pickRandomProps(rooms);
+  return new Game.Generator.Room(room.type, room.props);
+}
+
+Game.Generator.prototype.pickLake = function (lakes) {
+  var lake = Game.Util.pickRandomProps(lakes);
+  return new Game.Generator.Lake(lake.type, lake.props);
 }
 
 Game.Generator.prototype.pickCoords = function (room) {
@@ -77,7 +71,9 @@ Game.Generator.prototype.generate = function () {
           length: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15] } }
     ];
   var lakes =
-    [ { type: 'Star', weight: 1, props: {
+    [ { type: 'Lake', weight: 1, props: {
+          maxRadius: [10, 11, 12, 13, 14, 15, 16] } }
+    , { type: 'Swamp', weight: 1, props: {
           maxRadius: [10, 11, 12, 13, 14, 15, 16] } }
     ];
 
@@ -110,12 +106,10 @@ Game.Generator.prototype.generate = function () {
   }
 
   var map = this._map;
-  var lake = this.pickRoom(lakes);
-  pt = this.pickCoords(lake);
-  lake.place(pt.x, pt.y, function(x, y, val) {
-    if (val === 1) {
-      map[x+','+y] = Game.Tile.Water;
-    }
+  this._lake = this.pickLake(lakes);
+  pt = this.pickCoords(this._lake);
+  this._lake.place(pt.x, pt.y, function(x, y, tile) {
+    map[x+','+y] = tile;
   });
 }
 
@@ -140,11 +134,9 @@ Game.Generator.prototype.tryRoom = function (room, start, first) {
       && 1 <= pt.y && pt.y < this._height - room._height - 1) {
     if (first || room.placeable(pt.x, pt.y, isCarved)) {
       var gen = this;
-      room.place(pt.x, pt.y, function (x, y, val) {
-        if (val === 1) {
-          map[x+','+y] = Game.Tile.Floor;
-          gen._digCount++;
-        }
+      room.place(pt.x, pt.y, function (x, y, tile) {
+        map[x+','+y] = tile;
+        gen._digCount++;
       });
       var keypoints = this._keypoints;
       room.keypoints().forEach(function (p) {
@@ -190,26 +182,26 @@ Game.Generator.prototype.findComponents = function () {
 }
 
 Game.Generator.prototype.makeBridge = function () {
-  if (this._components.length > 1 &&
+  if (!this._components.length > 1 ||
+      !this._lake.bridgeable() ||
       this._components[1].length < 0.25 * this._components[0].length) return;
 
   var start = this._components[0].random(), end = this._components[1].random();
   var map = this._map;
+  var tile = this._lake.bridgeTile();
+  var lake = this._lake;
 
   var passable = function (x, y) {
     return map[x+','+y] !== Game.Tile.Wall;
   }
   var place = function (x, y) {
-    var idx = x+','+y;
-    if (map[idx] === Game.Tile.Water) {
-      map[idx] = Game.Tile.Bridge;
+    if (lake.contains(x, y)) {
+      map[x+','+y] = tile;
     }
   }
 
   var path = new ROT.Path.AStar(start.x, start.y, passable, { topology: 6 });
   path.compute(end.x, end.y, place);
-
-  console.log('bridge built');
 }
 
 Game.Generator.Room = function (type, props) {
@@ -245,15 +237,26 @@ Game.Generator.Room.prototype.placeable = function (x, y, isCarved) {
   return onBoundary;
 }
 
+Game.Generator.Room.prototype._tiles = {
+  1: Game.Tile.Floor
+}
+
 Game.Generator.Room.prototype.place = function (x, y, carve) {
+  this._placed = {x: x, y: y};
   for (var ry = 0; ry < this._height; ry++) {
     for (var rx = ry % 2; rx < this._width; rx+=2) {
       var val = this._get(rx, ry);
-      if (val) {
-        carve(x+rx, y+ry, val);
+      if (val in this._tiles) {
+        carve(x+rx, y+ry, this._tiles[val]);
       }
     }
   }
+}
+
+Game.Generator.Room.prototype.contains = function (x, y) {
+  if (!this._placed) { return false; }
+
+  return this._get(x-this._placed.x, y-this._placed.y) > 0;
 }
 
 Game.Generator.Room.prototype.keypoints = function () {
@@ -426,3 +429,65 @@ Game.Generator.Room.Tunnel = function (props) {
 }
 
 Game.Generator.Room.Tunnel.extend(Game.Generator.Room);
+
+Game.Generator.Lake = function (type, props) {
+  if (type in Game.Generator.Lake) {
+    return new Game.Generator.Lake[type](props);
+  }
+}
+
+Game.Generator.Lake.extend(Game.Generator.Room);
+
+Game.Generator.Lake.Lake = function (props) {
+  Game.Generator.Room.Star.call(this, props);
+}
+Game.Generator.Lake.Lake.extend(Game.Generator.Lake);
+
+Game.Generator.Lake.Lake.prototype.bridgeable = function () {
+  return true;
+}
+
+Game.Generator.Lake.Lake.prototype.bridgeTile = function () {
+  return Game.Tile.Bridge;
+}
+
+Game.Generator.Lake.Lake.prototype._tiles = {
+  1: Game.Tile.Water
+}
+
+Game.Generator.Lake.Swamp = function (props) {
+  Game.Generator.Room.Star.call(this, props);
+
+  var pts = [];
+  for (var y = 0; y < this._height; y++) {
+    for (var x = y % 2; x < this._width; x+=2) {
+      if (this._get(x, y) > 0) {
+        pts.push({x: x+this._xMin, y: y+this._yMin});
+      }
+    }
+  }
+
+  this._room = {};
+  pts = pts.randomize();
+
+  for (var i = 0; i < pts.length; i++) {
+    var pt = Game.Util.neighbors(pts[i]).random();
+    var idx = pt.x+','+pt.y;
+    if (idx in this._room) {
+      this._room[pts[i].x+','+pts[i].y] = { val: this._room[idx].val };
+    } else {
+      var val = ROT.RNG.getWeightedValue({1: 3, 2: 3, 3: 1});
+      this._room[pts[i].x+','+pts[i].y] = { val: val };
+    }
+  }
+}
+
+Game.Generator.Lake.Swamp.extend(Game.Generator.Lake);
+
+Game.Generator.Lake.Swamp.prototype._tiles = {
+  1: Game.Tile.Mud,
+  2: Game.Tile.SwampGrass,
+  3: Game.Tile.SwampWater
+}
+
+Game.Generator.Lake.Swamp.prototype.bridgeable = function () { return false; }
