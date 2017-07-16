@@ -2,6 +2,8 @@
 Game.Generator = function (width, height) {
   this._width = width;
   this._height = height;
+  this._minMonsters = 5;
+  this._maxMonsters = 15;
   this._map = {};
 
   for (var y = 0; y < height; y++) {
@@ -11,11 +13,12 @@ Game.Generator = function (width, height) {
   }
 }
 
-Game.Generator.prototype.compute = function (place) {
+Game.Generator.prototype.compute = function (place, addEntity) {
   this.generate();
   this.findComponents();
   this.makeBridge();
   this.pickEntrance();
+  this.placeMonsters(this._minMonsters, this._maxMonsters);
 
   for (var y = 0; y < this._height; y++) {
     for (var x = y%2; x < this._width; x+=2) {
@@ -24,6 +27,10 @@ Game.Generator.prototype.compute = function (place) {
   }
 
   place(this._entrance.x, this._entrance.y, Game.Tile.UpStair);
+
+  for (var i = 0; i < this._monsters.length; i++) {
+    addEntity(this._monsters[i]);
+  }
 }
 
 Game.Generator.prototype.pickEntrance = function () {
@@ -182,7 +189,7 @@ Game.Generator.prototype.findComponents = function () {
 }
 
 Game.Generator.prototype.makeBridge = function () {
-  if (!this._components.length > 1 ||
+  if (this._components.length <= 1 ||
       !this._lake.bridgeable() ||
       this._components[1].length < 0.25 * this._components[0].length) return;
 
@@ -202,6 +209,36 @@ Game.Generator.prototype.makeBridge = function () {
 
   var path = new ROT.Path.AStar(start.x, start.y, passable, { topology: 6 });
   path.compute(end.x, end.y, place);
+}
+
+Game.Generator.prototype.placeMonsters = function (min, max) {
+  this._monsters = [];
+
+  var monsterTypes =
+    [ { type: 'rat', weight: 3, props:
+        { name: [ 'rat' ]
+        , glyph: [ Game.Glyph.Rat ]
+        }
+      }
+    , { type: 'blob', weight: 1, props:
+        { name: [ 'blob' ]
+        , glyph: [ Game.Glyph.Blob ]
+        }
+      }
+    ];
+
+  var numMonsters = Math.floor(ROT.RNG.getUniform() * (max - min + 1)) + min;
+  var places = Array.prototype.concat.apply([], this._components).randomize();
+
+  for (var i = 0; i < numMonsters; i++) {
+    var props = Game.Util.pickRandomProps(monsterTypes).props;
+    props.x = places[i].x;
+    props.y = places[i].y;
+    if (!('components' in props)) props.components = [];
+    props.components = props.components.concat(
+      ['Position', 'Renderable', 'EnemyActor']);
+    this._monsters.push(new Game.Entity(props, props.components));
+  }
 }
 
 Game.Generator.Room = function (type, props) {

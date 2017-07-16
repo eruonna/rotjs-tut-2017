@@ -11,6 +11,8 @@ Game.Glyph.prototype.draw = function (ctx, x, y) {
 
 Game.Glyph.Null = new Game.Glyph();
 Game.Glyph.Player = new Game.Glyph('@', 'white');
+Game.Glyph.Blob = new Game.Glyph('B', 'green');
+Game.Glyph.Rat = new Game.Glyph('r', 'brown');
 Game.Glyph.NPC = new Game.Glyph('@', 'yellow');
 Game.Glyph.LitFloor = new Game.Glyph('\u00b7', 'grey');
 Game.Glyph.DarkFloor = new Game.Glyph('\u00b7', '#222');
@@ -30,3 +32,4 @@ Game.Glyph.LitSwampGrass = new Game.Glyph('\u3003', '#a8e206');
 Game.Glyph.DarkSwampGrass = new Game.Glyph('\u3003', '#547103');
 Game.Glyph.LitSwampWater = new Game.Glyph('~', 'white', '#0c4');
 Game.Glyph.DarkSwampWater = new Game.Glyph('~', 'grey', '#041');
+Game.Glyph.Marker = new Game.Glyph(' ', '', 'magenta');

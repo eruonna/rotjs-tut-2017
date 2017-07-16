@@ -57,3 +57,32 @@ Game.Components.Renderable = {
     this._glyph.draw(ctx, this._x, this._y);
   }
 }
+
+Game.Components.Actor = {
+  name: 'Actor',
+  init: function (obj, properties) {
+    obj._name = properties.name;
+  },
+  act: function() {
+  }
+}
+
+Game.Components.PlayerActor = {
+  name: 'PlayerActor',
+  init: Game.Components.Actor.init,
+  act: function() {
+    Game.render();
+    Game._engine.lock();
+  }
+}
+
+Game.Components.EnemyActor = {
+  name: 'EnemyActor',
+  init: function (obj, properties) {
+    Game.Components.Actor.init(obj, properties);
+    obj.interact = true;
+  },
+  act: function () {
+    console.log('The ' + this._name + ' growls');
+  }
+}

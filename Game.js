@@ -20,7 +20,16 @@ Game.init = function() {
     return;
   }
 
+  //ROT.RNG.setSeed(1500009600743);
+  console.log(ROT.RNG.getSeed());
+
   Game._div.innerHTML = "";
+
+  Game._scheduler = new ROT.Scheduler.Simple();
+  Game._engine = new ROT.Engine(Game._scheduler);
+
+  Game._mode = null;
+  Game._entities = [];
 
   Game._display = new Game.Display(Game._div, Game.width, Game.height);
 
@@ -29,16 +38,11 @@ Game.init = function() {
   Game._player = new Game.Entity({
     x: Game._map._upStair.x,
     y: Game._map._upStair.y,
+    name: 'player',
     glyph: Game.Glyph.Player
-  }, ['Position', 'Renderable']);
+  }, ['Position', 'Renderable', 'PlayerActor']);
 
-  var npc = new Game.Entity({
-    x: Game.width / 2 - 10,
-    y: Game.height / 2 + 1,
-    glyph: Game.Glyph.NPC
-  }, ['Position', 'Renderable']);
-
-  Game._entities = [Game._player, npc];
+  Game.addEntity(Game._player);
 
   Game.initialized = true;
   Game.run();
@@ -48,17 +52,13 @@ Game.run = function() {
   if (!Game.fontsLoaded) { return; }
   if (!Game.initialized) { Game.init(); }
   window.addEventListener('keydown', Game.handleEvent);
+  Game.switchMode(Game.Mode.playing);
   Game.render();
 };
 
 Game.render = function() {
-  Game._display.clear();
-  Game._map.render(Game._display, Game._player);
-  for (var i = 0; i < Game._entities.length; i++) {
-    var e = Game._entities[i];
-    if (e.render && Game._map.getTile(e._x, e._y).lit) {
-      e.render(Game._display);
-    }
+  if (Game._mode !== null) {
+    Game._mode.render(Game._display);
   }
 }
 
@@ -66,15 +66,36 @@ Game.update = function() {
 }
 
 Game.handleEvent = function (ev) {
-  switch (ev.type) {
-    case 'keydown':
-      var cmd = Game.Keys.getKeyCommand(ev.keyCode);
-      if (cmd !== false) {
-        ev.preventDefault();
-        cmd.run(Game._player);
-        Game.update();
-        Game.render();
-      }
-      break;
+  if (Game._mode !== null) {
+    Game._mode.handleInput(ev);
   }
+}
+
+Game.switchMode = function (newMode) {
+  if (Game._mode !== null) {
+    Game._mode.exit();
+  }
+
+  Game._mode = newMode;
+
+  if (Game._mode !== null) {
+    Game._mode.enter();
+    Game._mode.render(Game._display);
+  }
+}
+
+Game.addEntity = function (e) {
+  Game._entities.push(e);
+  if (e.act) {
+    Game._scheduler.add(e, true);
+  }
+}
+
+Game.getEntityAt = function (x, y) {
+  for (var i = 0; i < Game._entities.length; i++) {
+    if (Game._entities[i]._x === x && Game._entities[i]._y === y) {
+      return Game._entities[i];
+    }
+  }
+  return false;
 }

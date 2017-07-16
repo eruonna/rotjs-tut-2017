@@ -72,6 +72,12 @@ Game.Tile.SwampWater = new Game.Tile({
   blocked: true,
   blockSight: false
 })
+Game.Tile.Marker = new Game.Tile({
+  litGlyph: Game.Glyph.Marker,
+  darkGlyph: Game.Glyph.Marker,
+  blocked: false,
+  blockSight: false
+})
 
 Game.Map = function (width, height) {
   this._width = width;
@@ -86,7 +92,7 @@ Game.Map = function (width, height) {
   var gen = new Game.Generator(width, height);
   gen.compute(function (x, y, t) {
     tiles[x+','+y].tile = t;
-  });
+  }, Game.addEntity);
   this._upStair = gen._entrance;
 }
 
