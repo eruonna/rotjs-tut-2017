@@ -22,6 +22,10 @@ Game.Display.prototype.draw = function(x,y,ch,fg,bg) {
   this._console.draw(x,y,ch,fg,bg);
 }
 
+Game.Display.prototype.drawText = function (x, y, text) {
+  this._console.drawText(x, y, text.split('').join(' '));
+}
+
 Game.Display.prototype.clear = function() {
   this._console.clear();
 }

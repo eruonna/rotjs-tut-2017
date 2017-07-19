@@ -39,8 +39,11 @@ Game.init = function() {
     x: Game._map._upStair.x,
     y: Game._map._upStair.y,
     name: 'player',
-    glyph: Game.Glyph.Player
-  }, ['Position', 'Renderable', 'PlayerActor']);
+    glyph: Game.Glyph.Player,
+    maxHp: 30,
+    defense: 2,
+    power: 5
+  }, ['Position', 'Renderable', 'Fighter', 'PlayerActor']);
 
   Game.addEntity(Game._player);
 
@@ -88,6 +91,15 @@ Game.addEntity = function (e) {
   Game._entities.push(e);
   if (e.act) {
     Game._scheduler.add(e, true);
+  }
+}
+
+Game.removeEntity = function (e) {
+  var i = Game._entities.indexOf(e);
+  if (i >= 0) Game._entities.splice(i, 1);
+
+  if (e.act) {
+    Game._scheduler.remove(e);
   }
 }
 

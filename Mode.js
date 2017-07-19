@@ -33,3 +33,18 @@ Game.Mode.playing = {
     }
   }
 }
+
+Game.Mode.dead = {
+  enter: function () {
+    console.log('You are dead');
+  },
+  exit: function () { },
+  render: function (ctx) {
+    ctx.clear();
+    ctx.drawText(25, 25, "You have died");
+    ctx.drawText(33, 27, "Press any key to try again");
+  },
+  handleInput: function () {
+    Game.init();
+  }
+}

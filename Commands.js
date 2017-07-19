@@ -17,11 +17,15 @@ Game.Command.move = function (entity, data) {
     var target = Game.getEntityAt(x, y);
 
     if (target && target.interact) {
-      console.log('The ' + target._name + ' laughs at your puny efforts to attack it!');
+      entity.attack(target);
       return true;
     }
     return entity.moveTo(x,y);
   }
+}
+
+Game.Command.wait = function () {
+  return true;
 }
 
 Game.Keys = {}
@@ -33,6 +37,7 @@ Game.Keys.map[ROT.VK_I] = new Game.Command('move', {x: 1, y: -1});
 Game.Keys.map[ROT.VK_K] = new Game.Command('move', {x: 2, y: 0});
 Game.Keys.map[ROT.VK_M] = new Game.Command('move', {x: 1, y: 1});
 Game.Keys.map[ROT.VK_N] = new Game.Command('move', {x: -1, y: 1});
+Game.Keys.map[ROT.VK_PERIOD] = new Game.Command('wait');
 
 Game.Keys.getKeyCommand = function (key) {
   if (key in Game.Keys.map) {

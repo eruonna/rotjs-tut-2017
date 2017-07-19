@@ -216,13 +216,19 @@ Game.Generator.prototype.placeMonsters = function (min, max) {
 
   var monsterTypes =
     [ { type: 'rat', weight: 3, props:
-        { name: [ 'rat' ]
-        , glyph: [ Game.Glyph.Rat ]
+        { name: 'rat'
+        , glyph: Game.Glyph.Rat
+        , maxHp: 10
+        , defense: 0
+        , power: 3
         }
       }
     , { type: 'blob', weight: 1, props:
-        { name: [ 'blob' ]
-        , glyph: [ Game.Glyph.Blob ]
+        { name: 'blob'
+        , glyph: Game.Glyph.Blob
+        , maxHp: 16
+        , defense: 1
+        , power: 4
         }
       }
     ];
@@ -236,7 +242,7 @@ Game.Generator.prototype.placeMonsters = function (min, max) {
     props.y = places[i].y;
     if (!('components' in props)) props.components = [];
     props.components = props.components.concat(
-      ['Position', 'Renderable', 'EnemyActor']);
+      ['Position', 'Renderable', 'EnemyActor', 'Fighter']);
     this._monsters.push(new Game.Entity(props, props.components));
   }
 }

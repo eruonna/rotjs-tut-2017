@@ -148,7 +148,12 @@ Game.Util.pickRandomProps = function (choices) {
   }
   var choice = choices[ROT.RNG.getWeightedValue(weighted)], props = {};
   for (var idx in choice.props) {
-    props[idx] = choice.props[idx].random();
+    if (typeof choice.props[idx] === 'object'
+        && 'random' in choice.props[idx]) {
+      props[idx] = choice.props[idx].random();
+    } else {
+      props[idx] = choice.props[idx];
+    }
   }
 
   var ret = {};
