@@ -16,6 +16,15 @@ Game.Mode.playing = {
         e.render(ctx);
       }
     }
+
+    var text = 'HP: ' + Game._player._hp + '/' + Game._player._maxHp,
+        pct = Game._player._hp / Game._player._maxHp,
+        color = pct > .75 ? 'green' : pct > .45 ? 'yellow' : 'red';
+    ctx.drawBar(Game.properties.mapWidth, 2, Game.properties.barWidth,
+      Game._player._hp, Game._player._maxHp, color, 'black');
+    ctx.drawText(Game.properties.mapWidth, 0, text);
+
+    Game.renderLog(ctx);
   },
   handleInput: function (ev) {
     switch (ev.type) {

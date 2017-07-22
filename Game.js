@@ -1,8 +1,12 @@
 
 Game = {}
 
-Game.width = 160
-Game.height = 50
+Game.properties = {
+  mapWidth: 160,
+  mapHeight: 50,
+  barWidth: 10,
+  logHeight: 3
+}
 
 Game.initialized = false
 Game.fontsLoaded = false
@@ -31,9 +35,11 @@ Game.init = function() {
   Game._mode = null;
   Game._entities = [];
 
-  Game._display = new Game.Display(Game._div, Game.width, Game.height);
+  Game._display = new Game.Display(Game._div,
+    Game.properties.mapWidth + 2*Game.properties.barWidth,
+    Game.properties.mapHeight + 2*Game.properties.logHeight);
 
-  Game._map = new Game.Map(Game.width, Game.height);
+  Game._map = new Game.Map(Game.properties.mapWidth, Game.properties.mapHeight);
 
   Game._player = new Game.Entity({
     x: Game._map._upStair.x,
@@ -46,6 +52,8 @@ Game.init = function() {
   }, ['Position', 'Renderable', 'Fighter', 'PlayerActor']);
 
   Game.addEntity(Game._player);
+
+  Game._log = [];
 
   Game.initialized = true;
   Game.run();
@@ -101,6 +109,10 @@ Game.removeEntity = function (e) {
   if (e.act) {
     Game._scheduler.remove(e);
   }
+  if (e === Game._player) {
+    // Since the player is no longer on the schedule, lock the engine
+    Game._engine.lock();
+  }
 }
 
 Game.getEntityAt = function (x, y) {
@@ -110,4 +122,15 @@ Game.getEntityAt = function (x, y) {
     }
   }
   return false;
+}
+
+Game.log = function (msg) {
+  Game._log.push(msg);
+}
+
+Game.renderLog = function (ctx) {
+  var msgs = Game._log.slice(-Game.properties.logHeight);
+  for (var i = 0; i < msgs.length; i++) {
+    ctx.drawText(0, Game.properties.mapHeight + 2*i, msgs[i]);
+  }
 }

@@ -113,6 +113,9 @@ Game.Components.EnemyActor = {
         obj.moveTo(x, y);
       }
     });
+  },
+  die: function () {
+    Game.log('The ' + this._name + ' dies!');
   }
 }
 
@@ -132,9 +135,8 @@ Game.Components.Fighter = {
     if (this._hp <= 0) {
       if ('die' in this) {
         this.die();
-      } else {
-        Game.removeEntity(this);
       }
+      Game.removeEntity(this);
     }
   },
   attack: function (target) {

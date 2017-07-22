@@ -29,3 +29,14 @@ Game.Display.prototype.drawText = function (x, y, text) {
 Game.Display.prototype.clear = function() {
   this._console.clear();
 }
+
+// XXX: width is the number of hexes rather than twice the number of hexes
+// as in other places
+Game.Display.prototype.drawBar = function (x, y, width, value, max, fg, bg) {
+  var barWidth = Math.ceil(value / max * width);
+
+  for (var i = 0; i < width; i++) {
+    var bar = i < barWidth ? fg : bg;
+    this.draw(x + 2*i, y, ' ', '', bar);
+  }
+}
